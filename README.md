@@ -57,6 +57,20 @@ A simple platform adventure set on a fictional planet that blends Mars and Neptu
 
 The longer-term ambition includes new planets and possibly two-player gameplay, guided by the child's choices.
 
+## Release and publication process
+
+Each playable update keeps a permanent URL for the newest stable game and a separate archive of previous versions.
+
+For every accepted version:
+
+1. Save a standalone, playable copy at `marnep/versions/vX.Y/index.html`.
+2. Update `marnep/index.html` to the latest accepted game.
+3. Update the library home page (`index.html`) with the new version number and its archive link.
+4. Verify the repository files and the GitHub Pages deployment. Test the game controls and gameplay separately, ideally on an iPad.
+5. Report **created**, **tested** and **published** as three distinct statuses. A successful GitHub commit or Pages deployment is not proof of successful gameplay testing.
+
+The homepage and latest-game URLs remain stable as new versions are released.
+
 ## Project principles
 
 - Keep each game small and playable before adding complexity.
