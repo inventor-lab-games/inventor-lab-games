@@ -54,5 +54,90 @@ small{display:block;margin-top:26px;color:#aaa7c7}
 </section>
 <small>Inventor Lab is a parent-supervised family project. No accounts, advertisements or in-app purchases.</small>
 </main>
+<script id="latestReleaseSync">
+/* Keep the library in step with GitHub Pages' published game and GitHub's version archive.
+   The HTML above remains a usable fallback if a network request is unavailable. */
+(async () => {
+  const meta = document.querySelector('.card .meta');
+  const history = document.querySelector('.history');
+  const base = new URL('./marnep/index.html', location.href);
+  base.searchParams.set('release_check', String(Date.now()));
+  const titleVersion = /(?:^|[^\w])v(\d+(?:\.\d+)+)(?:$|[^\d])/i;
+  const versionParts = s => s.replace(/^v/i, '').split('.').map(Number);
+  const cmpVersions = (a, b) => {
+    const aa = versionParts(a), bb = versionParts(b);
+    for(let i = 0; i < Math.max(aa.length, bb.length); i++) {
+      if ((aa[i] || 0) !== (bb[i] || 0)) return (bb[i] || 0) - (aa[i] || 0);
+    }
+    return 0;
+  };
+
+  try {
+    // Inspect the actual playable page on this site, not a manually entered version number.
+    const response = await fetch(base.href, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Could not read latest published game');
+    const gameHtml = await response.text();
+    const gameTitle = new DOMParser().parseFromString(gameHtml, 'text/html')
+      .querySelector('title')?.textContent || '';
+    const match = gameTitle.match(titleVersion);
+    if (!match) throw new Error('Game title has no release version');
+    const currentVersion = 'v' + match[1];
+
+    if (meta) {
+      meta.textContent = 'Current version: ' + currentVersion + ' · Play on a computer or iPad';
+    }
+
+    // Update the title when the game introduces another named planet.
+    const gameName = document.querySelector('#marnep-title');
+    if (gameName && /Satjup/i.test(gameTitle)) gameName.textContent = 'Marnep & Satjup';
+
+    // Use the actual GitHub archive folders so new versions appear automatically.
+    const archiveUrl =
+      'https://api.github.com/repos/inventor-lab-games/inventor-lab-games/contents/marnep/versions';
+    const archiveResponse = await fetch(archiveUrl, {
+      cache: 'no-store',
+      headers: { Accept: 'application/vnd.github+json' }
+    });
+    if (!archiveResponse.ok) throw new Error('Could not read GitHub release archive');
+    const folders = await archiveResponse.json();
+    if (!Array.isArray(folders)) throw new Error('Unexpected archive response');
+
+    const versions = folders
+      .filter(item => item.type === 'dir' && /^v\d+(?:\.\d+)+$/.test(item.name))
+      .map(item => item.name)
+      .sort(cmpVersions);
+    if (!versions.length || !history) return;
+
+    const oldDescriptions = new Map();
+    history.querySelectorAll('.version').forEach(row => {
+      const version = row.querySelector('strong')?.textContent?.trim();
+      const text = row.querySelector('span')?.textContent?.trim() || '';
+      if (version) oldDescriptions.set(version, text.replace(/^v\d+(?:\.\d+)+\s*[—–-]\s*/, ''));
+    });
+
+    // Keep the newest release history accurate without replacing the stable Play button.
+    history.querySelectorAll('.version').forEach(row => row.remove());
+    versions.forEach(version => {
+      const row = document.createElement('div');
+      row.className = 'version';
+      const caption = document.createElement('span');
+      const strong = document.createElement('strong');
+      strong.textContent = version;
+      caption.appendChild(strong);
+      const description = oldDescriptions.get(version)
+        || (version === currentVersion ? 'Latest adventure' : 'Previous adventure');
+      caption.appendChild(document.createTextNode(' — ' + description));
+      const link = document.createElement('a');
+      link.href = './marnep/versions/' + version + '/';
+      link.textContent = 'Play ' + version;
+      row.append(caption, link);
+      history.appendChild(row);
+    });
+  } catch (error) {
+    // Keep the HTML's published, readable fallback instead of showing an error to children.
+    console.info('Inventor Lab release sync: showing saved library version.', error);
+  }
+})();
+</script>
 </body>
 </html>
