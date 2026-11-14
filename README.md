@@ -46,16 +46,16 @@ This is a small family project, not a commercial product, a professional softwar
 
 ## Games
 
-### Marnep — First Planet Adventure
+### Marnep & Satjup — Planet Adventures
 
-A simple platform adventure set on a fictional planet that blends Mars and Neptune. The first prototype lets a character move, jump, navigate obstacles, use ladders and collect stars.
+A browser-based platform adventure that begins on Marnep, a fictional planet inspired by Mars and Neptune, then unlocks Satjup as a longer, more challenging second level. The player moves, jumps, uses ladders, avoids moving obstacles and collects stars.
 
-- **Current prototype:** v0.2
+- **Current prototype:** v0.3
 - **Game file:** [marnep/index.html](marnep/index.html)
 - **Designed for:** Browser play on a computer and touch-friendly play on an iPad
 - **Status:** Prototype; iPad behaviour still needs to be verified
 
-The longer-term ambition includes new planets and possibly two-player gameplay, guided by the child's choices.
+The longer-term ambition includes additional planets and possibly two-player gameplay, guided by the child's choices.
 
 ## Release and publication process
 
@@ -65,11 +65,11 @@ For every accepted version:
 
 1. Save a standalone, playable copy at `marnep/versions/vX.Y/index.html`.
 2. Update `marnep/index.html` to the latest accepted game.
-3. Update the library home page (`index.html`) with the new version number and its archive link.
+3. Update the library home page (`index.html`) with the new version's description where relevant. Its built-in JavaScript also reads the latest published game's version and the GitHub version folders to keep the displayed release and archive links in sync, even if the static fallback was not edited.
 4. Verify the repository files and the GitHub Pages deployment. Test the game controls and gameplay separately, ideally on an iPad.
 5. Report **created**, **tested** and **published** as three distinct statuses. A successful GitHub commit or Pages deployment is not proof of successful gameplay testing.
 
-The homepage and latest-game URLs remain stable as new versions are released.
+The homepage and latest-game URLs remain stable as new versions are released. The fallback HTML should still be updated alongside each release, and the runtime synchronisation protects visitors against an accidentally stale version label. The browser may cache a previously opened page until it is refreshed.
 
 ## Project principles
 
