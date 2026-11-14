@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#5b102e" />
-<title>Premier grand jeu — Marnep et Satjup v0.3</title>
+<title>Premier grand jeu — Les 5 planètes secrètes v0.4</title>
 <style>
 :root{color-scheme:dark;--ink:#fff5df;--outline:#291146}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -16,7 +16,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1d0828;fon
 .hud .small{font-size:clamp(11px,1.25vw,15px);font-weight:650;color:#c7ecff}
 .hud .title{font-size:clamp(12px,1.8vw,20px);font-weight:950;color:#ffe89b}
 .hud .left{display:flex;gap:9px;align-items:center}
-#pause{width:44px;height:44px;padding:0;font-size:23px;cursor:pointer}
+#pause,#menu{width:44px;height:44px;padding:0;font-size:23px;cursor:pointer}
 #progress{min-width:164px}
 .hearts{letter-spacing:2px;color:#ff728f}
 #message{position:absolute;top:21%;left:50%;transform:translateX(-50%);background:#191c56dc;color:#fff;border:2px solid #8fe5ff;border-radius:20px;padding:12px 24px;z-index:4;font-weight:850;text-align:center;pointer-events:none;opacity:0;transition:opacity .18s;max-width:85%;text-shadow:0 2px 2px #0008}
@@ -40,13 +40,19 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1d0828;fon
 .bigbutton:active{transform:translateY(3px);box-shadow:0 2px 0 #1b6417}
 @media(max-height:500px){.controls{bottom:6px}.instructions{bottom:80px}.control{width:53px;height:53px;font-size:27px}.cluster{gap:6px}.hud .panel{padding:5px 9px}.modal .planet{font-size:32px}.modal p{margin:4px 0}.modal{padding:12px}.modal h1{margin:3px 0}}
 @media(max-width:620px) and (orientation:portrait){.instructions{white-space:normal;width:90%;bottom:90px}.hud .panel{padding:7px}.cluster{gap:4px}.control{width:54px;height:54px;font-size:28px}.hud{gap:5px}.hud .left{gap:5px}#progress{min-width:0}}
-</style>
+ .planet-choices{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:7px}
+ .planet-choices button{border:2px solid #ffffffa0;border-radius:15px;padding:9px 12px;background:#244d7b;color:#fff;font-weight:800;font-size:clamp(13px,1.8vw,17px);cursor:pointer;min-height:44px}
+ .planet-choices button:disabled{opacity:.46;cursor:default;background:#31284f}
+ .planet-choices button:not(:disabled):active{transform:translateY(2px)}
+ #menu{min-width:44px}
+ @media(max-height:500px){.planet-choices{gap:4px}.planet-choices button{padding:5px 8px;min-height:35px}}
+ </style>
 </head>
 <body>
 <div id="app">
-<canvas id="game" aria-label="Premier grand jeu : parcours des planètes Marnep et Satjup, avec sauts, échelles et pièges."></canvas>
+<canvas id="game" aria-label="Premier grand jeu : parcours des cinq planètes secrètes, avec sauts, échelles, obstacles mobiles et nouveaux dangers."></canvas>
 <div class="hud">
-  <div class="left"><button id="pause" class="panel" aria-label="Pause">Ⅱ</button><div id="health" class="panel"><div class="small">🤖 Robot</div><div class="hearts">♥ ♥ ♥</div></div></div>
+  <div class="left"><button id="pause" class="panel" aria-label="Pause">Ⅱ</button><button id="menu" class="panel" aria-label="Choisir une planète">🪐</button><div id="health" class="panel"><div class="small">🤖 Robot</div><div class="hearts">♥ ♥ ♥</div></div></div>
   <div id="progress" class="panel"><div class="small" id="planetPosition">🪐 Planète 1 sur 5</div><div class="title"><span id="planetTitle">Marnep</span> · ⭐ <span id="starCount">0</span>/<span id="starGoal">3</span></div></div>
 </div>
 <div id="message" role="status" aria-live="polite"></div>
@@ -56,7 +62,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1d0828;fon
   <div class="cluster"><button class="control" data-key="down" aria-label="Se baisser ou descendre">↓</button><button class="control" data-key="up" aria-label="Monter à une échelle">↑</button><button class="control jump" data-key="jump" aria-label="Sauter">⤒</button></div>
 </div>
 <div class="overlay" id="startOverlay">
- <div class="modal"><div class="planet">🪐 🤖</div><h1>Premier grand jeu</h1><p><strong>Mission 1 : Marnep</strong></p><p>Réussis la planète rouge pour découvrir la planète secrète suivante !</p><p class="tip">Flèches pour avancer et grimper · Espace pour sauter sur ordinateur · Boutons tactiles sur iPad</p><button class="bigbutton" id="startBtn">▶ Jouer !</button><p class="tip" id="unlockedMessage" hidden>🔓 Satjup est débloquée !</p><button class="bigbutton" id="startSatjup" hidden>🪐 Jouer à Satjup</button></div>
+ <div class="modal"><div class="planet">🪐 🤖</div><h1>Premier grand jeu</h1><p><strong>Mission 1 : Marnep</strong></p><p>Réussis la planète rouge pour découvrir la planète secrète suivante !</p><p class="tip">Flèches pour avancer et grimper · Espace pour sauter sur ordinateur · Boutons tactiles sur iPad</p><button class="bigbutton" id="startBtn">▶ Jouer !</button><p class="tip" id="menuTip">Planètes découvertes :</p><div id="planetChoices" class="planet-choices"></div></div>
 </div>
 <div class="overlay" id="endOverlay" hidden>
  <div class="modal"><div class="planet" id="endEmoji">🏆</div><h1 id="endTitle">Bravo !</h1><p id="endText"></p><p class="tip" id="endTip"></p><button class="bigbutton" id="endBtn">↻ Rejouer</button></div>
@@ -72,8 +78,8 @@ const msgEl=document.getElementById('message'),guide=document.getElementById('gu
 const pauseBtn=document.getElementById('pause'),startBtn=document.getElementById('startBtn');
 const progress=document.getElementById('starCount'),heartEl=document.querySelector('.hearts');
 const planetTitle=document.getElementById('planetTitle'),planetPosition=document.getElementById('planetPosition');
-const starGoal=document.getElementById('starGoal'),startSatjup=document.getElementById('startSatjup');
-const unlockedMessage=document.getElementById('unlockedMessage');
+const starGoal=document.getElementById('starGoal'),planetChoices=document.getElementById('planetChoices');
+const menuBtn=document.getElementById('menu');
 const buttons=[...document.querySelectorAll('[data-key]')];
 const held={left:false,right:false,up:false,down:false,jump:false};
 const inputPointers=new Map();
@@ -135,11 +141,89 @@ const LEVELS={
   labels:[{x:710,t:'SAUTE !'},{x:1260,t:'ÉCHELLE ↑↓'},{x:1785,t:'SAUTE !'},{x:2815,t:'SAUTE !'},{x:4115,t:'SAUTE !'},{x:5315,t:'SAUTE !'}]
  }
 };
-let level=LEVELS.marnep,unlocked=false,mode='start',camera=0,time=0,msgUntil=0,stars=0,lives=3,last=performance.now();
+
+// Les nouveaux parcours sont construits à partir de sections testables.
+// Les trous restent franchissables avec le saut normal (max. 135 px).
+function makeLongPlanet({name,number,parts,goal,lives,seed,theme}){
+ const solids=[],ladders=[],hazards=[],platforms=[],pickups=[],checkpoints=[],crystals=[],labels=[];
+ let x=-70;const sections=[];
+ for(let i=0;i<parts;i++){
+  const length=790+(i%4)*46,begin=x;
+  sections.push({begin,length});
+  solids.push({id:'g'+i,x:begin,y:410,w:length,h:260});
+  checkpoints.push(begin+105);
+  crystals.push([begin+65,409,18+(i%3)*5],[begin+length-70,409,22]);
+  if(i>0&&i%2===1){
+   const yy=number===5?257+(i%2)*8:272+(i%3)*7;
+   solids.push({id:'upper',x:begin+388,y:yy,w:337,h:34});
+   ladders.push({x:begin+456,y:yy,w:47,h:410-yy});
+   crystals.push([begin+685,yy,18]);
+   labels.push({x:begin+460,t:'ÉCHELLE ↑↓'});
+  }
+  if(i%3===0){solids.push({id:'tunnel',x:begin+155,y:325,w:208,h:56});}
+  // Ancien obstacle : rocher fixe ou roulant.
+  if(i>0||number>=4){
+   const rolling=i%3!==0;
+   hazards.push({x:begin+(i%3===0?570:355),y:385,r:20+(i%3),...(rolling?{roll:43+(number-2)*10,speed:1.03+i*.035,phase:i*1.21}:{})});
+  }
+  // Nouveau : drone volant. Sa hauteur varie, on peut passer en-dessous.
+  if(i>1&&i%3===2)hazards.push({x:begin+665,y:300,r:21,drone:true,bob:43,roll:54,speed:.9+i*.06,phase:i*.75});
+  // Nouveau : météorite qui tombe, puis recommence.
+  if(number>=4&&i>2&&i%4===0)hazards.push({x:begin+690,y:30,r:18,meteor:true,speed:.63+i*.012,phase:i*.64});
+  // Nouveau : barrière d'énergie qui s'allume et s'éteint.
+  if(number>=3&&i>1&&(i+number)%4===0){
+   // Les barrières laissent toujours une période où l'on peut passer.
+   hazards.push({x:begin+length-158,y:337,r:13,beam:true,speed:1.45+i*.02,phase:i*1.1});
+  }
+  const gap=98+((i+seed)%4)*11;
+  if(i<parts-1){
+   if(i%2===0){platforms.push({x:begin+length+gap/2-55,y:340,w:110,h:18,travel:24+number*7,speed:.82+i*.045,phase:i*.66});}
+   labels.push({x:begin+length-64,t:'SAUTE !'});
+  }
+  x+=length+gap;
+ }
+ // Étoiles réparties du début à la fin, certaines sur les plateaux hauts.
+ const indices=[];
+ for(let n=0;n<goal;n++)indices.push(1+Math.floor(n*(parts-2)/Math.max(1,goal-1)));
+ for(let n=0;n<indices.length;n++){
+  const i=indices[n],base=sections[i].begin;
+  if(i%2===1&&n%2===1){
+   const upper=solids.find(p=>p.id==='upper'&&p.x===base+388);
+   pickups.push({x:base+632,y:upper.y-38,r:16});
+  }else pickups.push({x:base+555,y:355,r:16});
+ }
+ const last=sections[parts-1];
+ const world=last.begin+last.length+95;
+ return {name,number,world,goal,lives,theme,solids,ladders,hazards,platforms,pickups,
+  portal:{x:last.begin+last.length-124,y:329,w:66,h:81},checkpoints,crystals,labels};
+}
+const THEMES={
+  3:{sky:['#061c35','#12647f','#66d5ba','#21446b'],planet:['#c7e9ff','#38b6da','#29729c'],ground:['#70d9d8','#217b96','#193f68'],water:'#32d6cf',crystal:'#b9ffff',band:['#286782','#238e94','#115777'],ring:'#d9eaff'},
+  4:{sky:['#121f46','#357a66','#e69c65','#4e3a68'],planet:['#ffe8aa','#e7887c','#9c4175'],ground:['#bcd872','#548b64','#3a446b'],water:'#77d2c4',crystal:'#b6ff90',band:['#658c79','#8d8679','#486875'],ring:'#fff7ba'},
+  5:{sky:['#060724','#371253','#852962','#16244e'],planet:['#f7baff','#9f59d5','#4b287a'],ground:['#b575e9','#6541a0','#28235a'],water:'#ba65ff',crystal:'#ffbaff',band:['#422363','#693477','#392a69'],ring:'#ffb6ed'}
+};
+LEVELS.mercunus=makeLongPlanet({name:'Mercunus',number:3,parts:11,goal:6,lives:5,seed:1,theme:THEMES[3]});
+LEVELS.venuterre=makeLongPlanet({name:'Venuterre',number:4,parts:14,goal:7,lives:6,seed:2,theme:THEMES[4]});
+LEVELS.hypataugr=makeLongPlanet({name:'Hypataugr',number:5,parts:17,goal:9,lives:7,seed:3,theme:THEMES[5]});
+const ORDER=['marnep','satjup','mercunus','venuterre','hypataugr'];
+let unlockedCount=1;
+try{unlockedCount=Math.max(1,Math.min(5,Number(localStorage.getItem('inventorlab-marnep-unlocked')||1)));}catch(e){}
+function saveProgress(){try{localStorage.setItem('inventorlab-marnep-unlocked',String(unlockedCount));}catch(e){}}
+function renderMenu(){
+ planetChoices.replaceChildren();
+ ORDER.forEach((key,i)=>{
+  const b=document.createElement('button');b.type='button';b.disabled=i>=unlockedCount;
+  b.textContent=i<unlockedCount?`${i+1}. ${LEVELS[key].name}`:`🔒 Planète ${i+1} : ???`;
+  b.addEventListener('click',()=>startLevel(key));planetChoices.appendChild(b);
+ });
+}
+function openMenu(){setMode('start');endOverlay.hidden=true;startOverlay.hidden=false;renderMenu();}
+let level=LEVELS.marnep,mode='start',camera=0,time=0,msgUntil=0,stars=0,lives=3,last=performance.now();
 let solids=[],ladders=[],hazards=[],movingPlatforms=[],pickups=[],portal={x:0,y:0,w:0,h:0},respawnX=100;
 const player={x:100,y:362,w:32,h:48,vy:0,onGround:false,climbing:false,crouching:false,facing:1,inv:0,drop:0,support:null};
-const spaceDots=Array.from({length:185},(_,i)=>({x:(i*149+53)%6900,y:(i*53+17)%270,r:((i*37)%10+4)/12,phase:i*.7}));
+const spaceDots=Array.from({length:240},(_,i)=>({x:(i*149+53)%17000,y:(i*53+17)%270,r:((i*37)%10+4)/12,phase:i*.7}));
 function startLevel(which){
+ if(!LEVELS[which]||ORDER.indexOf(which)>=unlockedCount)return;
  level=LEVELS[which];solids=level.solids;
  ladders=level.ladders;
  hazards=level.hazards.map(h=>({...h,cx:h.x}));
@@ -149,7 +233,7 @@ function startLevel(which){
  Object.assign(player,{x:100,y:362,w:32,h:48,vy:0,onGround:false,climbing:false,crouching:false,facing:1,inv:0,drop:0,support:null});
  camera=0;time=0;mode='playing';clearInput();startOverlay.hidden=true;endOverlay.hidden=true;
  planetTitle.textContent=level.name;planetPosition.textContent='🪐 Planète '+level.number+' sur 5';starGoal.textContent=level.goal;
- guide.textContent=which==='satjup'?'Plus long et plus difficile ! Attention aux rochers qui roulent et aux plateformes mobiles.':'Avance, saute, monte et descends les échelles pour trouver les étoiles !';
+ guide.textContent=level.number===1?'Avance, saute, monte et descends les échelles !':level.number===2?'Attention aux rochers roulants et aux plateformes mobiles !':level.number===3?'Nouveau : évite les drones et attends que les rayons s’éteignent !':level.number===4?'Attention aux météorites qui tombent, aux drones et aux rayons !':'Défi final : utilise tous les mouvements et choisis le bon moment !';
  updateHud();flash('Bienvenue sur '+level.name+' !',2.8);
 }
 function updateHud(){progress.textContent=String(stars);heartEl.textContent='♥ '.repeat(lives).trim();}
@@ -159,18 +243,27 @@ function setMode(m){mode=m;if(m!=='playing')clearInput();pauseBtn.textContent=m=
 function pause(){if(mode==='playing'){setMode('paused');flash('Pause — touche ▶ pour reprendre',100000);}else if(mode==='paused'){setMode('playing');msgEl.classList.remove('show');}}
 function end(won){
  setMode('ended');endOverlay.hidden=false;
- document.getElementById('endEmoji').textContent=won?'🏆 🪐':'🤖 💛';
  const title=document.getElementById('endTitle'),info=document.getElementById('endText'),tip=document.getElementById('endTip'),b=document.getElementById('endBtn');
- if(won&&level.number===1){
-  unlocked=true;startSatjup.hidden=false;unlockedMessage.hidden=false;
-  title.textContent='Bravo, Marnep réussie !';info.textContent='Tu as découvert le nom de la deuxième planète : SATJUP !';tip.textContent='Satjup est presque deux fois plus longue, avec des obstacles qui bougent.';b.textContent='🚀 Partir sur Satjup';
+ document.getElementById('endEmoji').textContent=won?'🏆 🪐':'🤖 💛';
+ const next=ORDER[level.number];
+ if(won&&next){
+  unlockedCount=Math.max(unlockedCount,level.number+1);saveProgress();
+  title.textContent='Bravo, '+level.name+' réussie !';
+  info.textContent='Planète secrète découverte : '+LEVELS[next].name.toUpperCase()+' !';
+  tip.textContent='La planète suivante est plus longue et plus difficile.';
+  b.textContent='🚀 Partir sur '+LEVELS[next].name;
  }else if(won){
-  title.textContent='Bravo, Satjup réussie !';info.textContent='Tu as terminé les deux premières planètes secrètes !';tip.textContent='La planète 3 sera inventée plus tard.';b.textContent='↻ Rejouer Satjup';
+  title.textContent='Tu as réussi les 5 planètes !';
+  info.textContent='🏆 Tu as débloqué la création du Deuxième petit jeu !';
+  tip.textContent='Nous inventerons et fabriquerons cet atelier ensemble dans une prochaine version.';
+  b.textContent='🪐 Choisir une planète';
  }else{
-  title.textContent='On réessaie ?';info.textContent='Ton robot a perdu tous ses cœurs. Essaie encore !';tip.textContent='Regarde les obstacles, puis choisis le bon moment.';b.textContent='↻ Réessayer '+level.name;
+  title.textContent='On réessaie ?';info.textContent='Ton robot a perdu tous ses cœurs. Essaie encore !';
+  tip.textContent='Observe les obstacles et choisis le bon moment.';b.textContent='↻ Réessayer '+level.name;
  }
- b.onclick=()=>startLevel(won&&level.number===1?'satjup':level===LEVELS.marnep?'marnep':'satjup');
+ b.onclick=()=>won?(next?startLevel(next):openMenu()):startLevel(ORDER[level.number-1]);
 }
+
 function die(){
  if(player.inv>0||mode!=='playing')return;
  lives--;updateHud();if(lives<=0){end(false);return;}
@@ -193,7 +286,11 @@ function update(dt){
  if(msgUntil<time)msgEl.classList.remove('show');
  for(let i=level.checkpoints.length-1;i>=0;i--){const checkpoint=level.checkpoints[i];if(player.x>checkpoint+75){respawnX=checkpoint;break;}}
  for(const p of movingPlatforms){p.oldX=p.x;p.x=p.baseX+Math.sin(time*p.speed+p.phase)*p.travel;p.dx=p.x-p.oldX;}
- for(const h of hazards)h.cx=h.x+(h.roll?Math.sin(time*h.speed+h.phase)*h.roll:0);
+ for(const h of hazards){
+  h.cx=h.x+(h.roll?Math.sin(time*h.speed+h.phase)*h.roll:0);
+  h.cy=h.meteor?(-38+((time*h.speed+h.phase)%1)*500):h.drone?h.y+Math.sin(time*1.7+h.phase)*h.bob:h.y;
+  h.active=!h.beam||Math.sin(time*h.speed+h.phase)>.20;
+ }
  if(player.support){player.x+=player.support.dx;player.support=null;}
  const move=(held.right?1:0)-(held.left?1:0);
  const l=findLadder();const atTop=l&&player.onGround&&Math.abs(player.y+player.h-l.y)<13;
@@ -238,7 +335,11 @@ function update(dt){
  for(const p of pickups){if(p.got)continue;const ddx=player.x+player.w/2-p.x,ddy=player.y+player.h/2-p.y;if(ddx*ddx+ddy*ddy<38*38){
   p.got=true;stars++;updateHud();flash(stars===level.goal?'Bravo ! Le portail est ouvert !':'Étoile trouvée ! ⭐',2.2);
  }}
- for(const h of hazards){const xx=Math.max(player.x,Math.min(h.cx,player.x+player.w)),yy=Math.max(player.y,Math.min(h.y,player.y+player.h));if((xx-h.cx)**2+(yy-h.y)**2<(h.r-3)**2)die();}
+ for(const h of hazards){
+  if(h.beam){if(h.active&&intersects(player,{x:h.cx-9,y:295,w:18,h:115}))die();continue;}
+  const xx=Math.max(player.x,Math.min(h.cx,player.x+player.w)),yy=Math.max(player.y,Math.min(h.cy,player.y+player.h));
+  if((xx-h.cx)**2+(yy-h.cy)**2<(h.r-3)**2)die();
+ }
  if(player.y>H+90)die();
  if(intersects(player,portal)){
   if(stars===level.goal)end(true);
@@ -256,7 +357,21 @@ function rounded(x,y,w,h,r,fill,stroke,sw=1){ctx.beginPath();ctx.roundRect(x,y,w
 function grad(x0,y0,x1,y1,stops){const g=ctx.createLinearGradient(x0,y0,x1,y1);stops.forEach(([at,c])=>g.addColorStop(at,c));return g;}
 function starshape(x,y,r,fill,outline){ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.48:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=outline;ctx.stroke();}
 function mountainBand(offset,baseline,amp,color,step){ctx.save();ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,baseline);for(let x=-step;x<W+step;x+=step){const wx=x+camera*offset,n=Math.sin(wx*.006)*.55+Math.sin(wx*.019)*.3+Math.cos(wx*.027)*.16;ctx.lineTo(x+step/2,baseline-amp*(.4+n));ctx.lineTo(x+step,baseline+amp*.16);}ctx.lineTo(W,H);ctx.closePath();ctx.fill();ctx.restore();}
+function drawOtherBackdrop(){
+ const t=level.theme;
+ ctx.fillStyle=grad(0,0,0,H,[[0,t.sky[0]],[.36,t.sky[1]],[.77,t.sky[2]],[1,t.sky[3]]]);ctx.fillRect(0,0,W,H);
+ const px=748-camera*.043,py=177;
+ const pg=ctx.createRadialGradient(px-35,py-65,12,px,py,183);
+ pg.addColorStop(0,t.planet[0]);pg.addColorStop(.67,t.planet[1]);pg.addColorStop(1,t.planet[2]);
+ ctx.save();ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,py,168,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle=t.ring;ctx.globalAlpha=.65;ctx.lineWidth=21;ctx.beginPath();ctx.ellipse(px,py,254,53,-.27,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;ctx.restore();
+ for(const p of spaceDots){const xx=(p.x-camera*.12+17000)%17000;if(xx>W)continue;ctx.globalAlpha=.35+.38*Math.sin(time+p.phase);ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(xx,p.y,p.r,0,6.2832);ctx.fill();}ctx.globalAlpha=1;
+ mountainBand(.1,406,105,t.band[0],95);mountainBand(.2,444,92,t.band[1],72);mountainBand(.34,466,69,t.band[2],57);
+ ctx.fillStyle=grad(0,447,0,H,[[0,t.water],[1,t.sky[0]]]);ctx.fillRect(0,458,W,82);
+ for(let i=0;i<17;i++){const x=(i*157-camera*.4+17000)%1210-120;ctx.fillStyle='#e8ffff55';ctx.fillRect(x,472+(i%4)*19,45,2);}
+}
 function drawBackdrop(){
+ if(level.theme){drawOtherBackdrop();return;}
  const sat=level.number===2;
  ctx.fillStyle=sat?grad(0,0,0,H,[[0,'#1d1246'],[.42,'#683073'],[.75,'#b75574'],[1,'#4f2659']]):grad(0,0,0,H,[[0,'#180b3a'],[.42,'#5b1f60'],[.75,'#c24363'],[1,'#4f2352']]);ctx.fillRect(0,0,W,H);
  ctx.save();const px=sat?760-camera*.055:210-camera*.055;
@@ -275,6 +390,7 @@ function drawBackdrop(){
 function drawGround(s){
  const x=s.x-camera;if(x+s.w<0||x>W)return;
  const bottom=s.id==='upper'?s.y+s.h:H+50,sat=level.number===2;
+ if(level.theme){ctx.fillStyle=grad(0,s.y,0,550,[[0,level.theme.ground[0]],[.22,level.theme.ground[1]],[1,level.theme.ground[2]]]);ctx.fillRect(x,s.y,s.w,bottom-s.y);ctx.fillStyle=level.theme.planet[0];ctx.fillRect(x,s.y,s.w,9);ctx.fillStyle=level.theme.planet[2];ctx.fillRect(x,s.y+9,s.w,7);return;}
  ctx.fillStyle=sat?grad(0,s.y,0,550,[[0,'#e5aa6e'],[.17,'#b97471'],[.7,'#714274'],[1,'#462d61']]):grad(0,s.y,0,550,[[0,'#ec4350'],[.17,'#b72746'],[.7,'#6e244c'],[1,'#401a42']]);ctx.fillRect(x,s.y,s.w,bottom-s.y);
  ctx.fillStyle=sat?'#ffdda0':'#ff7970';ctx.fillRect(x,s.y,s.w,10);ctx.fillStyle=sat?'#855075':'#872344';ctx.fillRect(x,s.y+10,s.w,7);
  ctx.save();ctx.beginPath();ctx.rect(x,s.y,s.w,bottom-s.y);ctx.clip();for(let k=Math.floor(s.x/100);k<Math.ceil((s.x+s.w)/100);k++){
@@ -290,14 +406,18 @@ function drawLadder(l){
  ctx.strokeStyle='#c1e3fa';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x+4,l.y);ctx.lineTo(x+4,l.y+l.h);ctx.moveTo(x+l.w-4,l.y);ctx.lineTo(x+l.w-4,l.y+l.h);
  for(let y=l.y+13;y<l.y+l.h;y+=18){ctx.moveTo(x+4,y);ctx.lineTo(x+l.w-4,y)}ctx.stroke();
 }
-function drawHazard(h){const x=h.cx-camera;if(x<-45||x>W+45)return;ctx.save();ctx.translate(x,h.y);ctx.rotate(time*1.6);ctx.fillStyle=level.number===2?'#ffca7d':'#f16a74';ctx.strokeStyle='#602444';ctx.lineWidth=3;
+function drawHazard(h){
+ const x=h.cx-camera;if(x<-45||x>W+45)return;
+ if(h.beam){ctx.save();ctx.strokeStyle=h.active?'#fff0aa':'#ffffff44';ctx.lineWidth=h.active?13:4;ctx.shadowColor='#ffee50';ctx.shadowBlur=h.active?22:0;ctx.beginPath();ctx.moveTo(x,295);ctx.lineTo(x,410);ctx.stroke();ctx.fillStyle='#f9f6ff';ctx.font='bold 13px system-ui';ctx.fillText(h.active?'⚡':'○',x-9,278);ctx.restore();return;}
+ if(h.drone||h.meteor){ctx.save();ctx.translate(x,h.cy);ctx.shadowBlur=14;ctx.shadowColor=h.drone?'#ff6ae9':'#ffbb42';ctx.fillStyle=h.drone?'#d862ec':'#ffac4e';ctx.strokeStyle='#fff6cd';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,h.r,0,6.2832);ctx.fill();ctx.stroke();ctx.fillStyle='#291849';ctx.beginPath();ctx.arc(0,0,h.r*.47,0,6.2832);ctx.fill();if(h.drone){ctx.strokeStyle='#d7f9ff';ctx.beginPath();ctx.moveTo(-h.r-15,-8);ctx.lineTo(h.r+15,-8);ctx.stroke();}ctx.restore();return;}
+ ctx.save();ctx.translate(x,h.cy);ctx.rotate(time*1.6);ctx.fillStyle=level.number===2?'#ffca7d':'#f16a74';ctx.strokeStyle='#602444';ctx.lineWidth=3;
  for(let i=0;i<9;i++){const a=i*Math.PI*2/9;ctx.beginPath();ctx.moveTo(Math.cos(a-.18)*(h.r-2),Math.sin(a-.18)*(h.r-2));ctx.lineTo(Math.cos(a)*(h.r+10),Math.sin(a)*(h.r+10));ctx.lineTo(Math.cos(a+.18)*(h.r-2),Math.sin(a+.18)*(h.r-2));ctx.fill();ctx.stroke();}
  ctx.fillStyle='#28264d';ctx.beginPath();ctx.arc(0,0,h.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#a3b5da';ctx.stroke();ctx.fillStyle=h.roll?'#ffdc5b':'#fb3e54';ctx.shadowColor='#fb5b61';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(0,0,h.r*.58,0,Math.PI*2);ctx.fill();ctx.restore();}
 function drawPlatform(p){
  const x=p.x-camera;if(x+p.w<0||x>W)return;
  ctx.save();ctx.shadowColor='#52efff';ctx.shadowBlur=12;rounded(x,p.y,p.w,p.h,7,'#3686bb','#c8fbff',3);ctx.shadowBlur=0;ctx.fillStyle='#bafaff';ctx.fillRect(x+9,p.y+5,p.w-18,4);ctx.fillStyle='#fff0aa';ctx.font='bold 15px system-ui';ctx.fillText('↔',x+p.w/2-9,p.y-13);ctx.restore();
 }
-function drawCrystal(x,y,size){x-=camera;if(x<-40||x>W+40)return;ctx.fillStyle=level.number===2?'#e29dff':'#26aaff';ctx.strokeStyle='#80f7ff';ctx.lineWidth=2;for(let i=0;i<3;i++){const xx=x+i*12-size*.25,hh=size*(i===1?1.2:.7);ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx-7,y-hh*.6);ctx.lineTo(xx,y-hh);ctx.lineTo(xx+7,y-hh*.55);ctx.lineTo(xx+8,y);ctx.closePath();ctx.fill();ctx.stroke();}}
+function drawCrystal(x,y,size){x-=camera;if(x<-40||x>W+40)return;ctx.fillStyle=level.theme?level.theme.crystal:level.number===2?'#e29dff':'#26aaff';ctx.strokeStyle='#80f7ff';ctx.lineWidth=2;for(let i=0;i<3;i++){const xx=x+i*12-size*.25,hh=size*(i===1?1.2:.7);ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx-7,y-hh*.6);ctx.lineTo(xx,y-hh);ctx.lineTo(xx+7,y-hh*.55);ctx.lineTo(xx+8,y);ctx.closePath();ctx.fill();ctx.stroke();}}
 function drawPortal(){const x=portal.x-camera;if(x>W+100||x<-100)return;ctx.save();ctx.shadowColor=stars===level.goal?'#a3fa52':'#49cdff';ctx.shadowBlur=24;rounded(x,portal.y,portal.w,portal.h,25,stars===level.goal?'#2b9d77':'#1f4b87','#bbf6ff',5);ctx.fillStyle=grad(0,portal.y,0,portal.y+portal.h,[[0,stars===level.goal?'#c7ff89':'#96f7ff'],[1,'#1558aa']]);rounded(x+9,portal.y+11,portal.w-18,portal.h-18,18,ctx.fillStyle,'#fffaff',2);ctx.shadowBlur=0;ctx.fillStyle='#ffffff';ctx.font='bold 19px system-ui';ctx.textAlign='center';ctx.fillText(stars===level.goal?'✓':'🔒',x+portal.w/2,portal.y+49);ctx.textAlign='left';ctx.restore();}
 function drawRobot(){
  const x=player.x-camera,y=player.y;if(player.inv>0&&Math.floor(player.inv*10)%2===0)return;
@@ -340,9 +460,10 @@ addEventListener('keydown',e=>{const key=keyboard[e.key];if(!key)return;e.preven
 addEventListener('keyup',e=>{const key=keyboard[e.key];if(!key)return;e.preventDefault();held[key]=false;const b=buttons.find(x=>x.dataset.key===key);if(b)b.classList.remove('pressed');});
 addEventListener('blur',clearInput);
 startBtn.addEventListener('click',()=>startLevel('marnep'));
-startSatjup.addEventListener('click',()=>{if(unlocked)startLevel('satjup');});
+menuBtn.addEventListener('click',openMenu);
+renderMenu();
 pauseBtn.addEventListener('click',pause);
-window.__marnepTest={get state(){return {mode,level:level.name,x:player.x,y:player.y,stars,goal:level.goal,lives,climbing:player.climbing,crouching:player.crouching,unlocked}},start:startLevel,step:update,press:key=>{held[key]=true;if(key==='jump')jump()},release:key=>{held[key]=false},get level(){return level},get player(){return player},get hazards(){return hazards},win:()=>end(true)};
+window.__marnepTest={get state(){return {mode,level:level.name,x:player.x,y:player.y,stars,goal:level.goal,lives,climbing:player.climbing,crouching:player.crouching,unlockedCount}},start:startLevel,step:update,press:key=>{held[key]=true;if(key==='jump')jump()},release:key=>{held[key]=false},get level(){return level},get player(){return player},get hazards(){return hazards},get levels(){return LEVELS},get unlockedCount(){return unlockedCount},get platforms(){return movingPlatforms},get pickups(){return pickups},get portal(){return portal},get canvas(){return canvas},win:()=>end(true)};
 requestAnimationFrame(frame);
 })();
 </script>
