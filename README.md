@@ -57,6 +57,17 @@ A browser-based platform adventure that begins on Marnep, a fictional planet ins
 
 The longer-term ambition includes additional planets and possibly two-player gameplay, guided by the child's choices.
 
+### THEANIMALL — Animal Runner
+
+A second game designed by a nine-year-old inventor. Players begin with a rabbit, cat or dog; run through animal-specific worlds; dodge approaching trains, monsters and rocks; and collect in-game coins to unlock more animals. Each playable animal has a different pursuer. Three hits end the run; the chase ends in a playful, non-graphic cartoon.
+
+- **Current prototype:** v0.1
+- **Latest playable game:** [theanimall/index.html](theanimall/index.html)
+- **Preserved first release:** [theanimall/versions/v0.1/index.html](theanimall/versions/v0.1/index.html)
+- **Designed for:** iPad Safari touch controls and desktop keyboards
+- **Status:** First published prototype; real iPad playtesting needed
+- **Language:** French, following the inventor's preference
+
 ## Release and publication process
 
 Each playable update keeps a permanent URL for the newest stable game and a separate archive of previous versions.
