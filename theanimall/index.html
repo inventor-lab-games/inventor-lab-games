@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#241a54">
+<title>THEANIMALL — v0.1</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#251d46;--ink:#251d46}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fbf5ff}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:4px solid #ffb322;outline-offset:3px}
+.hidden{display:none!important}
+header{background:linear-gradient(115deg,#5c39bd,#ae4fd6);color:white;padding:13px max(16px,env(safe-area-inset-left));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-weight:1000;font-size:clamp(1.26rem,5vw,1.8rem);letter-spacing:-.04em}
+.logo small{font-size:.68rem;display:block;letter-spacing:.07em;font-weight:700;color:#ecdcff}
+.wallet{background:#ffffff30;padding:9px 13px;border-radius:18px;font-weight:900;white-space:nowrap}
+main{max-width:880px;margin:auto}
+#menu{padding:20px 16px 35px}
+.hero{text-align:center;margin:0 auto 15px}
+h1{font-size:clamp(1.75rem,6vw,2.55rem);margin:7px 0 6px;line-height:1.13}
+p{line-height:1.45;margin:8px 0}
+.subtitle{color:#615779}
+#animals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:20px 0}
+.animal{border:3px solid #ded5f8;border-radius:22px;background:white;min-height:153px;padding:12px 4px;box-shadow:0 6px 0 #ded5f8;text-align:center;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:transform .1s}
+.animal:active{transform:translateY(4px);box-shadow:0 2px 0 #ded5f8}
+.animal .face{font-size:clamp(2.6rem,9vw,4rem);line-height:1.2}
+.animal b{font-size:.99rem}
+.animal span:last-child{font-size:.75rem;font-weight:800;color:#6a4da5}
+.animal.locked{background:#f1edf6;filter:saturate(.77)}
+.animal.selected{border-color:#ffb326;background:#fff7d9;box-shadow:0 6px 0 #d79b1c}
+.note{border-radius:16px;background:#efe7fc;padding:12px 15px;color:#51427b;text-align:center;font-size:.91rem}
+.primary{background:#ffbc34;border:0;border-bottom:5px solid #d68a14;border-radius:17px;padding:14px 28px;color:#392405;font-weight:1000;font-size:1.16rem;min-height:56px}
+.primary:active{transform:translateY(3px);border-bottom-width:2px}
+.menu-actions{text-align:center;padding:15px 0}
+#play{padding:7px 12px 22px}
+#hud{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:clamp(.85rem,3.1vw,1.09rem);font-weight:900;margin:2px 0 9px}
+.hud-chip{background:white;border:2px solid #e5dafa;border-radius:14px;padding:7px 10px;min-width:0;white-space:nowrap}
+#pause{border:0;border-radius:12px;background:#e9ddff;font-weight:900;min-height:39px;padding:6px 10px}
+#stage{height:min(59svh,540px);min-height:300px;max-width:680px;margin:auto;position:relative;border:5px solid #693b9d;border-radius:22px;overflow:hidden;background:#b0e9fb;box-shadow:0 11px 24px #4d296d25;touch-action:none}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+#toast{position:absolute;top:16%;left:0;right:0;text-align:center;color:white;font-size:clamp(1.4rem,6vw,2.1rem);font-weight:1000;text-shadow:0 3px 8px #341058;pointer-events:none;opacity:0;transition:opacity .2s}
+#controls{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:640px;margin:12px auto 3px;user-select:none}
+.control-set{display:flex;gap:9px}
+.ctrl{background:#e8dbff;border:2px solid #8a64d1;border-bottom:5px solid #724bb9;border-radius:15px;min-width:62px;min-height:61px;font-size:1.8rem;font-weight:900;color:#49317c}
+.ctrl:active{transform:translateY(3px);border-bottom-width:2px}
+.tip{text-align:center;font-size:.88rem;color:#6d6180;margin:10px 2px}
+#end,#paused{position:fixed;inset:0;background:#221440ae;display:grid;place-items:center;padding:22px;z-index:10}
+.dialog{background:white;border-radius:28px;max-width:420px;width:100%;padding:24px 18px;box-shadow:0 16px 45px #180b2977;text-align:center}
+.dialog h2{font-size:1.75rem;margin:10px 0}.dialog .huge{font-size:4rem;line-height:1.2}
+.dialog .summary{background:#f3edff;border-radius:18px;padding:12px;margin:13px 0;font-weight:900}
+.secondary{border:2px solid #ad9cd5;background:white;border-radius:16px;padding:13px 18px;font-weight:850}
+.dialog .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+@media(min-width:620px){#animals{grid-template-columns:repeat(4,minmax(0,1fr))}.animal{min-height:166px}}
+@media(max-width:370px){.ctrl{min-width:51px;min-height:54px}.animal{min-height:136px}.animal b{font-size:.88rem}}
+</style>
+</head>
+<body>
+<header><div class="logo">🐾 THEANIMALL <small>Le jeu imaginé par Théa · v0.1</small></div><div class="wallet">🪙 <span id="bank">0</span></div></header>
+<main>
+<section id="menu">
+  <div class="hero"><h1>Choisis ton animal ! 🐰🐱🐶</h1><p class="subtitle">Chaque animal a son monde et son prédateur. Ramasse des pièces pour débloquer les autres !</p></div>
+  <div id="animals" aria-label="Choix des animaux"></div>
+  <div class="note">❤️❤️❤️ Trois vies · 🚆 Trains en mouvement · 👾 Monstres · 🪨 Rochers</div>
+  <div class="menu-actions"><button class="primary" id="start">▶ JOUER !</button><p class="subtitle">Glisse ton doigt sur le jeu ou utilise les gros boutons.</p></div>
+</section>
+<section id="play" class="hidden">
+  <div id="hud"><span class="hud-chip" id="hearts">❤️❤️❤️</span><span class="hud-chip" id="distance">🏁 0 m</span><span class="hud-chip" id="coins">🪙 0</span><button id="pause" aria-label="Pause">⏸</button></div>
+  <div id="stage"><canvas id="canvas" aria-label="Course avec trois pistes"></canvas><div id="toast" aria-live="polite"></div></div>
+  <div id="controls"><div class="control-set"><button class="ctrl" data-move="left" aria-label="Gauche">⬅️</button><button class="ctrl" data-move="right" aria-label="Droite">➡️</button></div><div class="control-set"><button class="ctrl" data-move="jump" aria-label="Sauter">⬆️</button><button class="ctrl" data-move="slide" aria-label="Glisser">⬇️</button></div></div>
+  <p class="tip">⬅️ ➡️ Change de piste · ⬆️ Saute les rochers · ⬇️ Glisse sous les barrières</p>
+</section>
+</main>
+<div id="end" class="hidden" role="dialog" aria-modal="true" aria-labelledby="end-title"><div class="dialog">
+<div class="huge" id="end-face">🦊🐰</div><h2 id="end-title">Le prédateur t'a rattrapé !</h2><p id="end-story"></p>
+<div class="summary" id="end-summary"></div><div class="actions"><button class="primary" id="retry">🔁 Rejouer</button><button class="secondary" id="choose">🐾 Autre animal</button></div>
+</div></div>
+<div id="paused" class="hidden" role="dialog" aria-modal="true"><div class="dialog"><div class="huge">⏸️</div><h2>Petite pause !</h2><button class="primary" id="resume">▶ Continuer</button><button class="secondary" id="home">🏠 Menu</button></div></div>
+<script>
+(() => {
+'use strict';
+const animals=[
+{id:'lapin',name:'Lapin',emoji:'🐰',world:'Prairie fleurie',hunter:'🦊',hunterName:'renard',price:0,sky:['#8be7ff','#d8f8d3'],grass:'#7ccc75',track:'#dabf92',accent:'#f5e46b'},
+{id:'chat',name:'Chat',emoji:'🐱',world:'Ville des chats',hunter:'🐶',hunterName:'chien',price:0,sky:['#a9bcff','#f8d4fd'],grass:'#9bc3b8',track:'#b9adca',accent:'#f3b7ff'},
+{id:'chien',name:'Chien',emoji:'🐶',world:'Parc des chiens',hunter:'🐺',hunterName:'loup',price:0,sky:['#6fdfff','#cff4fc'],grass:'#79ce91',track:'#dfbb84',accent:'#fff29b'},
+{id:'singe',name:'Singe',emoji:'🐵',world:'Jungle',hunter:'🐆',hunterName:'léopard',price:12,sky:['#6bcfbd','#d1f0a1'],grass:'#56b06b',track:'#a78a60',accent:'#fff08a'},
+{id:'pingouin',name:'Pingouin',emoji:'🐧',world:'Banquise',hunter:'🐻‍❄️',hunterName:'ours polaire',price:20,sky:['#7fb5ff','#effbff'],grass:'#d0effc',track:'#9cc7e9',accent:'#fdfdff'},
+{id:'lion',name:'Lion',emoji:'🦁',world:'Savane',hunter:'🐊',hunterName:'crocodile',price:30,sky:['#f7bf76','#ffedb0'],grass:'#c7ce75',track:'#d49e5e',accent:'#ffef79'},
+{id:'zebre',name:'Zèbre',emoji:'🦓',world:'Grande plaine',hunter:'🦁',hunterName:'lion',price:40,sky:['#91d8fb','#e3f9bc'],grass:'#9aca71',track:'#cba873',accent:'#fff08d'},
+{id:'poulpe',name:'Poulpe',emoji:'🐙',world:'Océan magique',hunter:'🦈',hunterName:'requin',price:50,sky:['#60bdec','#c0f5ec'],grass:'#68c8bf',track:'#acdcd6',accent:'#ffd7ed'},
+{id:'licorne',name:'Licorne',emoji:'🦄',world:'Pays des arcs-en-ciel',hunter:'🐉',hunterName:'dragon',price:65,sky:['#c6b2ff','#ffdbef'],grass:'#bf96e6',track:'#f6c3ce',accent:'#fff18d'}
+];
+const $=id=>document.getElementById(id);
+function read(key,fallback){try{const v=localStorage.getItem('theanimall.'+key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
+function save(key,value){try{localStorage.setItem('theanimall.'+key,JSON.stringify(value))}catch(e){}}
+let bank=Math.max(0,Number(read('bank',0))||0);
+let unlocked=read('unlocked',['lapin','chat','chien']);
+if(!Array.isArray(unlocked))unlocked=['lapin','chat','chien'];
+['lapin','chat','chien'].forEach(id=>{if(!unlocked.includes(id))unlocked.push(id)});
+let selected=animals[0],running=false,paused=false,life=3,earned=0,meters=0,lane=1,objs=[],spawnTimer=0,coinTimer=0,invincible=0,jumpTime=0,slideTime=0,last=0,frame=0,toastTimeout=0;
+const canvas=$('canvas'),ctx=canvas.getContext('2d');
+function updateBank(){$('bank').textContent=bank}
+function menu(){
+running=false;paused=false;$('menu').classList.remove('hidden');$('play').classList.add('hidden');$('end').classList.add('hidden');$('paused').classList.add('hidden');
+updateBank();const container=$('animals');container.textContent='';
+animals.forEach(a=>{
+ const open=unlocked.includes(a.id),can=bank>=a.price;
+ const btn=document.createElement('button');btn.className='animal'+(!open?' locked':'')+(selected.id===a.id?' selected':'');
+ btn.setAttribute('aria-label',a.name+(open?' débloqué':' coût '+a.price+' pièces'));
+ const icon=document.createElement('span');icon.className='face';icon.textContent=a.emoji;
+ const name=document.createElement('b');name.textContent=a.name;
+ const label=document.createElement('span');label.textContent=open?'🔓 '+a.world:'🔒 '+a.price+' 🪙'+(can?' ✓':'');
+ btn.append(icon,name,label);
+ btn.addEventListener('click',()=>{
+  if(!open){if(bank<a.price){toast('Il te manque des pièces !');return}
+    bank-=a.price;unlocked.push(a.id);save('bank',bank);save('unlocked',unlocked);
+  }
+  selected=a;menu();
+ });container.appendChild(btn);
+});
+}
+function toast(msg){
+ const t=$('toast');if(!$('play').classList.contains('hidden')){t.textContent=msg;t.style.opacity='1';clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.style.opacity='0',1150)}
+ else {const note=document.querySelector('.note');note.textContent=msg;setTimeout(()=>note.textContent='❤️❤️❤️ Trois vies · 🚆 Trains en mouvement · 👾 Monstres · 🪨 Rochers',1700)}
+}
+function sizeCanvas(){
+ const rect=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
+ const w=Math.max(1,Math.round(rect.width*d)),h=Math.max(1,Math.round(rect.height*d));
+ if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+ ctx.setTransform(d,0,0,d,0,0);
+}
+function start(){
+ $('menu').classList.add('hidden');$('play').classList.remove('hidden');$('end').classList.add('hidden');$('paused').classList.add('hidden');
+ lane=1;life=3;earned=0;meters=0;objs=[];spawnTimer=.6;coinTimer=.5;invincible=0;jumpTime=0;slideTime=0;running=true;paused=false;last=performance.now();updateHud();sizeCanvas();requestAnimationFrame(loop);
+}
+function updateHud(){$('hearts').textContent='❤️'.repeat(life)+'🖤'.repeat(3-life);$('distance').textContent='🏁 '+Math.floor(meters)+' m';$('coins').textContent='🪙 '+earned}
+function move(type){
+ if(!running||paused)return;
+ if(type==='left')lane=Math.max(0,lane-1);
+ if(type==='right')lane=Math.min(2,lane+1);
+ if(type==='jump'&&jumpTime<=0&&slideTime<=0)jumpTime=.8;
+ if(type==='slide'&&slideTime<=0&&jumpTime<=0)slideTime=.7;
+}
+document.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.move)));
+$('start').addEventListener('click',start);$('retry').addEventListener('click',start);$('choose').addEventListener('click',menu);
+$('pause').addEventListener('click',()=>{if(running){paused=true;$('paused').classList.remove('hidden')}});
+$('resume').addEventListener('click',()=>{paused=false;$('paused').classList.add('hidden');last=performance.now();requestAnimationFrame(loop)});
+$('home').addEventListener('click',menu);
+document.addEventListener('keydown',e=>{
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
+ const keys={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'slide',' ':'jump'};
+ if(keys[e.key])move(keys[e.key]);
+ if(e.key==='Escape'&&paused)$('resume').click();
+});
+let touch=null;
+canvas.addEventListener('touchstart',e=>{if(e.touches.length)touch={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});
+canvas.addEventListener('touchend',e=>{if(!touch||!e.changedTouches.length)return;
+ const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;
+ if(Math.max(Math.abs(dx),Math.abs(dy))>24)move(Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'jump':'slide'));
+ else move('jump');touch=null;
+},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused){paused=true;$('paused').classList.remove('hidden')}});
+function spawnObstacle(){
+ const kinds=['rock','monster','train','barrier'],roll=Math.random();
+ const kind=roll<.35?kinds[0]:roll<.61?kinds[1]:roll<.84?kinds[2]:kinds[3];
+ const l=Math.floor(Math.random()*3);objs.push({kind,lane:l,z:1,used:false});
+ if(meters>150&&Math.random()<.18){const other=(l+1+Math.floor(Math.random()*2))%3;objs.push({kind:Math.random()<.5?'rock':'monster',lane:other,z:1,used:false})}
+}
+function spawnCoin(){objs.push({kind:'coin',lane:Math.floor(Math.random()*3),z:1,used:false})}
+function hit(){
+ if(invincible>0)return;life--;invincible=1.45;updateHud();
+ if(life>0)toast('Aïe ! -1 vie ❤️');else finish();
+}
+function finish(){
+ running=false;save('bank',bank);
+ $('end-face').textContent=selected.hunter+' '+selected.emoji;
+ $('end-title').textContent='Oh non ! Plus de vies !';
+ $('end-story').textContent='Le '+selected.hunterName+' a rattrapé '+(selected.name==='Chat'?'le chat':selected.name==='Chien'?'le chien':'ton animal')+'… MIAM ! 😋';
+ $('end-summary').textContent='🏁 '+Math.floor(meters)+' mètres · 🪙 '+earned+' pièces ramassées';
+ $('end').classList.remove('hidden');
+}
+function update(dt){
+ frame+=dt;const speed=.42+Math.min(.3,meters/2600);
+ meters+=dt*(15+Math.min(11,meters/130));spawnTimer-=dt;coinTimer-=dt;invincible=Math.max(0,invincible-dt);jumpTime=Math.max(0,jumpTime-dt);slideTime=Math.max(0,slideTime-dt);
+ if(spawnTimer<=0){spawnObstacle();spawnTimer=.98+Math.random()*.43-Math.min(.35,meters/1800)}
+ if(coinTimer<=0){spawnCoin();coinTimer=.58+Math.random()*.85}
+ for(const o of objs){
+  o.z-=dt*speed;if(o.used||o.z>.055||o.z<-.075)continue;
+  o.used=true;if(o.lane!==lane)continue;
+  if(o.kind==='coin'){earned++;bank++;save('bank',bank);updateBank();toast('🪙 +1');updateHud()}
+  else if(o.kind==='rock'&&jumpTime>0){} 
+  else if(o.kind==='barrier'&&slideTime>0){} 
+  else hit();
+ }
+ objs=objs.filter(o=>o.z>-.20);updateHud();
+}
+function rr(x,y,w,h,r,col){
+ ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+}
+function emoji(s,x,y,size,alpha=1){
+ ctx.save();ctx.globalAlpha=alpha;ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.font=size+'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';ctx.fillText(s,x,y);ctx.restore();
+}
+function draw(){
+ sizeCanvas();const W=canvas.clientWidth,H=canvas.clientHeight,cx=W/2,horizon=H*.29;
+ const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,selected.sky[0]);sky.addColorStop(1,selected.sky[1]);ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ emoji(selected.id==='poulpe'?'🐠':selected.id==='pingouin'?'❄️':'☀️',W*.83,H*.13,37);
+ ctx.fillStyle=selected.grass;ctx.fillRect(0,horizon,W,H-horizon);
+ for(let i=0;i<9;i++){
+  const px=((i*113+Math.floor(frame*12)*-1)% (W+110)+W+110)%(W+110)-55;
+  const item=selected.id==='chat'?'🏠':selected.id==='pingouin'?'🧊':selected.id==='poulpe'?'🪸':selected.id==='lion'||selected.id==='zebre'?'🌴':selected.id==='licorne'?'🌈':'🌳';
+  emoji(item,px,horizon+18+(i%3)*21,22+(i%3)*8,.85);
+ }
+ const halfTop=W*.16,halfBottom=W*.49;
+ ctx.fillStyle=selected.track;ctx.beginPath();ctx.moveTo(cx-halfTop,horizon);ctx.lineTo(cx+halfTop,horizon);ctx.lineTo(cx+halfBottom,H);ctx.lineTo(cx-halfBottom,H);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#ffffffb6';ctx.lineWidth=3;ctx.setLineDash([18,16]);
+ for(const frac of [-1/3,1/3]){ctx.beginPath();ctx.moveTo(cx+frac*halfTop,horizon);ctx.lineTo(cx+frac*halfBottom,H);ctx.stroke()}ctx.setLineDash([]);
+ const pos=(l,z)=>{const t=Math.max(0,1-z),y=horizon+Math.pow(t,1.6)*(H-horizon),half=halfTop+(halfBottom-halfTop)*((y-horizon)/(H-horizon));return {x:cx+(l-1)*half*.665,y,size:15+Math.pow(t,1.24)*65}};
+ objs.slice().sort((a,b)=>b.z-a.z).forEach(o=>{
+ const p=pos(o.lane,o.z);if(o.z>1||o.z<-.15)return;
+ ctx.fillStyle='#40296a40';ctx.beginPath();ctx.ellipse(p.x,p.y+5,p.size*.43,p.size*.13,0,0,Math.PI*2);ctx.fill();
+ const sym={rock:'🪨',monster:'👾',train:'🚆',barrier:'🚧',coin:'🪙'}[o.kind];
+ emoji(sym,p.x,p.y-p.size*.35,p.size*(o.kind==='coin'?.72:1.03));
+ });
+ const p=pos(lane,.035),jump=jumpTime>0?Math.sin((1-jumpTime/.8)*Math.PI)*77:0;
+ const wobble=Math.sin(frame*13)*3;const alpha=invincible>0&&Math.floor(invincible*8)%2===0?.5:1;
+ ctx.fillStyle='#3f276455';ctx.beginPath();ctx.ellipse(p.x,p.y+8,34,9,0,0,Math.PI*2);ctx.fill();
+ if(slideTime>0){emoji(selected.emoji,p.x,p.y-20,46,alpha);emoji('💨',p.x+27,p.y-4,27)}
+ else emoji(selected.emoji,p.x,p.y-42-jump+wobble,63,alpha);
+ emoji(selected.hunter,W*.12,H*.9,40,.8);
+ ctx.fillStyle='#ffffffcf';ctx.font='bold 13px system-ui';ctx.textAlign='left';ctx.fillText('Je te poursuis !',12,H-20);
+}
+function loop(t){
+ if(!running||paused)return;
+ const dt=Math.min((t-last)/1000,.045)||.016;last=t;update(dt);draw();
+ if(running&&!paused)requestAnimationFrame(loop);
+}
+window.addEventListener('resize',()=>{if(!$('play').classList.contains('hidden'))draw()});
+updateBank();menu();
+})();
+</script>
+</body>
+</html>
