@@ -39,10 +39,10 @@ small{display:block;margin-top:26px;color:#aaa7c7}
 <div class="illustration" aria-hidden="true">🪐 🤖 ⭐</div>
 <div class="content">
 <div class="eyebrow">Mission 1 · Planet adventure</div>
-<h2 id="marnep-title">Les 5 planètes secrètes</h2>
-<p>Travel through Marnep, Satjup, Mercunus, Venuterre and Hypataugr. Each planet brings longer courses, new obstacles and tougher challenges. Discover them one by one to unlock the future Little Game Creator.</p>
-<a class="action" href="./marnep/" aria-label="Play the latest version of the five planets game">▶ Play latest version</a>
-<div class="meta">Current version: v0.4 · Play on a computer or iPad</div>
+<h2 id="marnep-title">Planète Parcours</h2>
+<p>Explore five secret planets — Marnep, Satjup, Mercunus, Venuterre and Hypataugr. Dodge moving dangers, collect coins and spend them on robot upgrades. Complete all five to unlock the future Little Game Creator.</p>
+<a class="action" href="./planete-parcours/" aria-label="Play the latest Planète Parcours game">▶ Play Planète Parcours</a>
+<div class="meta">Current version: v0.5 · Play on a computer or iPad</div>
 </div>
 </section>
 <section class="card" aria-labelledby="theanimall-title" style="margin-top:24px">
@@ -58,6 +58,7 @@ small{display:block;margin-top:26px;color:#aaa7c7}
 <section class="history" aria-labelledby="versions">
 <h3 id="versions">🗂 Earlier versions</h3>
 <p class="meta">Each release is kept separately so we can compare changes and revisit previous ideas.</p>
+<div class="version"><span><strong>v0.5</strong> — Renamed Planète Parcours; proper crouching obstacles, safer stars, music, coins and upgrades</span><a href="./marnep/versions/v0.5/">Play v0.5</a></div>
 <div class="version"><span><strong>v0.4</strong> — All five secret planets, drones, meteors, energy gates and saved progress</span><a href="./marnep/versions/v0.4/">Play v0.4</a></div>
 <div class="version"><span><strong>v0.3</strong> — Satjup, a longer second level with moving hazards</span><a href="./marnep/versions/v0.3/">Play v0.3</a></div>
 <div class="version"><span><strong>v0.2</strong> — Ladder descent added</span><a href="./marnep/versions/v0.2/">Play v0.2</a></div>
@@ -75,7 +76,7 @@ small{display:block;margin-top:26px;color:#aaa7c7}
 (async () => {
   const meta = document.querySelector('.card .meta');
   const history = document.querySelector('.history');
-  const base = new URL('./marnep/index.html', location.href);
+  const base = new URL('./planete-parcours/index.html', location.href);
   base.searchParams.set('release_check', String(Date.now()));
   const titleVersion = /(?:^|[^\w])v(\d+(?:\.\d+)+)(?:$|[^\d])/i;
   const versionParts = s => s.replace(/^v/i, '').split('.').map(Number);
@@ -104,7 +105,8 @@ small{display:block;margin-top:26px;color:#aaa7c7}
 
     // Update the title when the game introduces another named planet.
     const gameName = document.querySelector('#marnep-title');
-    if (gameName && /Satjup/i.test(gameTitle)) gameName.textContent = 'Marnep & Satjup';
+    if (gameName && /Planète Parcours/i.test(gameTitle)) gameName.textContent = 'Planète Parcours';
+    else if (gameName && /Satjup/i.test(gameTitle)) gameName.textContent = 'Marnep & Satjup';
 
     // Use the actual GitHub archive folders so new versions appear automatically.
     const archiveUrl =
