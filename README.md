@@ -46,16 +46,18 @@ This is a small family project, not a commercial product, a professional softwar
 
 ## Games
 
-### Marnep & Satjup — Planet Adventures
+### Planète Parcours — Five Secret Planets
 
-A browser-based platform adventure that begins on Marnep, a fictional planet inspired by Mars and Neptune, then unlocks Satjup as a longer, more challenging second level. The player moves, jumps, uses ladders, avoids moving obstacles and collects stars.
+A child-invented browser platform adventure across five secret planets: **Marnep, Satjup, Mercunus, Venuterre and Hypataugr**. The robot jumps, crouches and climbs ladders to avoid fixed and moving hazards, collects stars and coins, and can spend earned coins on upgrades. Planet progression and in-game upgrades are saved locally where browser storage is available. The five levels become longer and more challenging.
 
-- **Current prototype:** v0.3
-- **Game file:** [marnep/index.html](marnep/index.html)
-- **Designed for:** Browser play on a computer and touch-friendly play on an iPad
-- **Status:** Prototype; iPad behaviour still needs to be verified
+- **Current playable version:** v0.6 (targeted reliability correction)
+- **Latest playable game:** [planete-parcours/index.html](planete-parcours/index.html)
+- **Preserved release:** [planete-parcours/versions/v0.6/index.html](planete-parcours/versions/v0.6/index.html)
+- **Legacy links:** [marnep/index.html](marnep/index.html) and archived Marnep releases remain available
+- **Designed for:** Desktop browsers and iPad touch controls
+- **Verification:** Targeted Chromium checks passed; physical iPad Safari testing remains outstanding
 
-The longer-term ambition includes additional planets and possibly two-player gameplay, guided by the child's choices.
+The idea of a **Little Game Creator** inside the larger game belongs to the young inventor. It is not yet implemented and will only be explored when the inventor chooses. A possible two-player mode is also a future child-led idea.
 
 ### THEANIMALL — Animal Runner
 
@@ -74,8 +76,8 @@ Each playable update keeps a permanent URL for the newest stable game and a sepa
 
 For every accepted version:
 
-1. Save a standalone, playable copy at `marnep/versions/vX.Y/index.html`.
-2. Update `marnep/index.html` to the latest accepted game.
+1. Archive the standalone Planète Parcours game at `planete-parcours/versions/vX.Y/index.html`, while preserving the legacy `marnep/versions/` archive for existing links.
+2. Update `planete-parcours/index.html` and its compatible `marnep/index.html` link to the same accepted release.
 3. Update the library home page (`index.html`) with the new version's description where relevant. Its built-in JavaScript also reads the latest published game's version and the GitHub version folders to keep the displayed release and archive links in sync, even if the static fallback was not edited.
 4. Verify the repository files and the GitHub Pages deployment. Test the game controls and gameplay separately, ideally on an iPad.
 5. Report **created**, **tested** and **published** as three distinct statuses. A successful GitHub commit or Pages deployment is not proof of successful gameplay testing.

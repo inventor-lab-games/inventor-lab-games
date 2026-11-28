@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#5b102e" />
-<title>Planète Parcours — Les 5 planètes secrètes v0.5</title>
+<title>Planète Parcours — Les 5 planètes secrètes v0.6</title>
 <style>
 :root{color-scheme:dark;--ink:#fff5df;--outline:#291146}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -349,8 +349,10 @@ function startLevel(which){
  pickups=level.pickups.map(p=>({...p,got:false}));
  coins=level.coins.map(c=>({...c,got:false}));
  unlockAudio();musicNote=0;if(audioContext)nextNote=audioContext.currentTime+.1;
- portal=level.portal;stars=0;lives=level.lives+(upgrades.heart?1:0);respawnX=100;
- Object.assign(player,{x:100,y:362,w:32,h:48,vy:0,onGround:false,climbing:false,crouching:false,facing:1,inv:0,drop:0,support:null});
+ // On commence devant le premier passage bas des planètes 3 à 5, sans chevaucher son plafond.
+ const spawnX=level.number>=3?level.checkpoints[0]:100;
+ portal=level.portal;stars=0;lives=level.lives+(upgrades.heart?1:0);respawnX=spawnX;
+ Object.assign(player,{x:spawnX,y:362,w:32,h:48,vy:0,onGround:false,climbing:false,crouching:false,facing:1,inv:0,drop:0,support:null});
  camera=0;time=0;mode='playing';clearInput();startOverlay.hidden=true;endOverlay.hidden=true;
  planetTitle.textContent=level.name;planetPosition.textContent='🪐 Planète '+level.number+' sur 5';starGoal.textContent=level.goal;
  guide.textContent=level.number===1?'Avance, saute, monte et descends les échelles !':level.number===2?'Attention aux rochers roulants et aux plateformes mobiles !':level.number===3?'Nouveau : évite les drones et attends que les rayons s’éteignent !':level.number===4?'Attention aux météorites qui tombent, aux drones et aux rayons !':'Défi final : utilise tous les mouvements et choisis le bon moment !';
@@ -374,8 +376,8 @@ function end(won){
   b.textContent='🚀 Partir sur '+LEVELS[next].name;
  }else if(won){
   title.textContent='Tu as réussi les 5 planètes !';
-  info.textContent='🏆 Tu as débloqué la création du Deuxième petit jeu !';
-  tip.textContent='Nous inventerons et fabriquerons cet atelier ensemble dans une prochaine version.';
+  info.textContent='🏆 Tu as découvert les cinq planètes secrètes !';
+  tip.textContent='Le Deuxième petit jeu reste à imaginer par toi, quand tu en auras envie.';
   b.textContent='🪐 Choisir une planète';
  }else{
   title.textContent='On réessaie ?';info.textContent='Ton robot a perdu tous ses cœurs. Essaie encore !';
